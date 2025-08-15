@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique @default("admin")
+  email        String    @unique
+  passwordHash String
+  role         String    @default("user") // "user" or "admin"
+  createdAt    DateTime  @default(now())
+  datasets     Dataset[]
+}
+
+model Dataset {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  name        String
+  description String?
+  filePath    String
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  visualizations Visualization[]
+}
+
+model Visualization {
+  id        String   @id @default(uuid())
+  dataset   Dataset  @relation(fields: [datasetId], references: [id])
+  datasetId String
+  chartType String
+  config    Json
+  createdAt DateTime @default(now())
+}
